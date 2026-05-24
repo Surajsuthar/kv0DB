@@ -19,7 +19,7 @@ func (Kv *KVStore) Start() error {
 		eof, err := Kv.log.Read(st)
 		if err != nil {
 			return err
-		}else if eof {
+		} else if eof {
 			break;
 		}
 

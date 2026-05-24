@@ -30,7 +30,7 @@ func (Log *Log) Write(st *Store) error {
 func (Log *Log) Read(st *Store) (eof bool, err error) {
 	err = st.Decode(Log.fp)
 
-	if err == io.EOF {
+	if err == io.EOF || err == ErrBadSum || err == io.ErrUnexpectedEOF {
 		return true, err
 	} else if err != nil {
 		return false, nil
