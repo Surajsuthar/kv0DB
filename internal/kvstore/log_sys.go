@@ -1,5 +1,7 @@
 //go:build unix
 
+// log_sys.go contains Unix-specific file creation helpers that fsync the
+// containing directory after creating the log file.
 package kvstore
 
 import (
@@ -22,11 +24,11 @@ func createFileSync(file string) (*os.File, error) {
 }
 
 func syncDir(file string) error {
-    flags := os.O_RDONLY | syscall.O_DIRECTORY
-    dirfd, err := syscall.Open(path.Dir(file), flags, 0o644)
-    if err != nil {
-        return err
-    }
-    defer syscall.Close(dirfd)
-    return syscall.Fsync(dirfd)
+	flags := os.O_RDONLY | syscall.O_DIRECTORY
+	dirfd, err := syscall.Open(path.Dir(file), flags, 0o644)
+	if err != nil {
+		return err
+	}
+	defer syscall.Close(dirfd)
+	return syscall.Fsync(dirfd)
 }

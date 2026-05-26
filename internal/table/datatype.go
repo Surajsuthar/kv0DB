@@ -1,3 +1,5 @@
+// datatype.go defines cell types and their binary encoding for table rows.
+// Integers are fixed-width little-endian values; strings are length-prefixed bytes.
 package table
 
 import (

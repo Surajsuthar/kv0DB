@@ -1,3 +1,4 @@
+// main.go is the command entry point for the go-db executable.
 package main
 
 import "fmt"

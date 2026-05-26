@@ -1,3 +1,5 @@
+// kv_test.go covers the public KVStore behavior and the Store record encoding
+// used by the append-only log.
 package kvstore
 
 import (

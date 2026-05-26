@@ -1,3 +1,8 @@
+// kv_ser_de.go serializes and deserializes log records.
+//
+// Record format:
+// | crc32 | key size | val size | deleted | key data | val data |
+// |  4B   |    4B    |    4B    |   1B    |    ...   |    ...   |
 package kvstore
 
 import (
@@ -8,19 +13,14 @@ import (
 )
 
 type Store struct {
-	key 	[]byte
-	val 	[]byte
+	key     []byte
+	val     []byte
 	deleted bool
 }
 
 var ErrBadSum = errors.New("bad checksum")
 
 func (st *Store) Encode() []byte {
-	/*
-	 * |  crc32  | key size | val size | deleted | key data | val data |
-	 * | 4 bytes | 4 bytes  | 4 bytes  | 1 byte  |   ...    |   ...    |
-	 */
-
 	data := make([]byte, 4+4+4+1+len(st.key)+len(st.val))
 	crc := crc32.ChecksumIEEE(data[4:])
 	binary.LittleEndian.PutUint32(data[0:4], crc)
@@ -46,7 +46,7 @@ func (st *Store) Decode(r io.Reader) error {
 
 	deleted := head[12]
 	data := make([]byte, keylen+vallen)
-	if _, err := io.ReadFull(r, data) ; err != nil {
+	if _, err := io.ReadFull(r, data); err != nil {
 		return nil
 	}
 
@@ -61,7 +61,7 @@ func (st *Store) Decode(r io.Reader) error {
 	st.key = data[0:keylen]
 	if deleted != 0 {
 		st.deleted = true
-	}else {
+	} else {
 		st.val = data[keylen:]
 		st.deleted = false
 	}

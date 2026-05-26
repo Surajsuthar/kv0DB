@@ -1,3 +1,5 @@
+// log.go wraps the append-only Store record file used by KVStore.
+// Writes are synced immediately, and reads stream records back in insertion order.
 package kvstore
 
 import (
@@ -7,13 +9,12 @@ import (
 
 type Log struct {
 	Filename string
-	fp *os.File
+	fp       *os.File
 }
 
-
 func (log *Log) Open() (err error) {
-	log.fp ,err = createFileSync(log.Filename)
-    return err
+	log.fp, err = createFileSync(log.Filename)
+	return err
 }
 
 func (Log *Log) Close() error {

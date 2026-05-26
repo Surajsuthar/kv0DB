@@ -1,3 +1,5 @@
+// kv_store.go owns the in-memory key/value map and replays the append-only log
+// on startup so persisted Set and Del operations are reflected in memory.
 package kvstore
 
 import (
@@ -6,12 +8,12 @@ import (
 
 type KVStore struct {
 	log Log
-	mp map[string][]byte
+	mp  map[string][]byte
 }
 
 func (Kv *KVStore) Start() error {
 	if err := Kv.log.Open(); err != nil {
-		return  err
+		return err
 	}
 	Kv.mp = map[string][]byte{}
 	for {
@@ -20,7 +22,7 @@ func (Kv *KVStore) Start() error {
 		if err != nil {
 			return err
 		} else if eof {
-			break;
+			break
 		}
 
 		if st.deleted {
