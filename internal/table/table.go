@@ -79,7 +79,7 @@ func (row Row) DecodeKey(schema *Schema, key []byte) (err error) {
 			continue
 		}
 		row[idx] = Cell{Type: col.Type}
-		if key, err := row[idx].Decode(key); err != nil {
+		if key, err = row[idx].Decode(key); err != nil {
 			return err
 		}
 	}
@@ -101,7 +101,7 @@ func (row Row) DecodeVal(schema *Schema, val []byte) (err error) {
 		}
 
 		row[idx] = Cell{Type: col.Type}
-		if val, err := row[idx].Decode(val); err != nil {
+		if val, err = row[idx].Decode(val); err != nil {
 			return err
 		}
 	}

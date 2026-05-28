@@ -11,6 +11,14 @@ type KVStore struct {
 	mp  map[string][]byte
 }
 
+type UpdateMode int
+
+const (
+	ModeUpsert UpdateMode = 0 // insert or update
+	ModeInsert UpdateMode = 1 // insert new
+	ModeUpdate UpdateMode = 2 // update existing
+)
+
 func (Kv *KVStore) Start() error {
 	if err := Kv.log.Open(); err != nil {
 		return err
@@ -44,15 +52,7 @@ func (Kv *KVStore) Get(key []byte) ([]byte, bool, error) {
 }
 
 func (Kv *KVStore) Set(key, value []byte) (bool, error) {
-	already, ok := Kv.mp[string(key)]
-	updated := !ok || !bytes.Equal(value, already)
-	if updated {
-		if err := Kv.log.Write(&Store{key: key, val: value}); err != nil {
-			return false, err
-		}
-		Kv.mp[string(key)] = value
-	}
-	return updated, nil
+	return Kv.SetEx(key, value, ModeUpsert)
 }
 
 func (Kv *KVStore) Del(key []byte) (bool, error) {
@@ -64,4 +64,28 @@ func (Kv *KVStore) Del(key []byte) (bool, error) {
 		delete(Kv.mp, string(key))
 	}
 	return ok, nil
+}
+
+func (kv *KVStore) SetEx(key []byte, val []byte, mode UpdateMode) (bool, error) {
+	preVal, ok := kv.mp[string(key)]
+	var update bool
+	switch mode {
+	case ModeUpsert:
+		update = !ok || bytes.Equal(preVal, val)
+	case ModeInsert:
+		update = !ok
+	case ModeUpdate:
+		update = ok || !bytes.Equal(preVal, val)
+	default:
+		panic("unreachable")
+	}
+
+	if update {
+		if err := kv.log.Write(&Store{key: key, val: val}); err != nil {
+			return false, err
+		}
+		kv.mp[string(key)] = val
+	}
+
+	return update, nil
 }
